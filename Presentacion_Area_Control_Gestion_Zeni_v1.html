@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Área de Control y Gestión – ZENI</title>
+
+  <style>
+    /* =======================
+       Tema (dark por defecto)
+       ======================= */
+    :root{
+      --bg:#0f172a;        --panel:#0b1226;   --text:#e5e7eb;  --muted:#94a3b8;
+      --accent:#38bdf8;    --border:#1f2937;  --card:#111827ee;
+      --link:#7dd3fc;      --shadow:#0006;
+
+      /* Colores para tablas */
+      --tbl-head: color-mix(in oklab, var(--accent) 25%, var(--panel));
+      --tbl-row:  color-mix(in oklab, var(--panel) 92%, #0000);
+    }
+    [data-theme="light"]{
+      --bg:#f7fafc;        --panel:#ffffff;   --text:#0f172a;  --muted:#475569;
+      --accent:#0ea5e9;    --border:#e2e8f0;  --card:#ffffffee;
+      --link:#0ea5e9;      --shadow:#0002;
+
+      --tbl-head: color-mix(in oklab, var(--accent) 10%, #fff);
+      --tbl-row:  #fff;
+      --event-size: 398px;
+    }
+
+    /* =======================
+       Base tipográfica/layout
+       ======================= */
+    *{box-sizing:border-box}
+    html{font-size:19px}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial;
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+    a{color:var(--link);text-decoration:none}
+    a:focus-visible,button:focus-visible{
+      outline:2px solid var(--accent);
+      outline-offset:2px;border-radius:8px
+    }
+
+    header{
+      position:sticky;top:0;z-index:10;padding:12px 16px;
+      background:linear-gradient(180deg,var(--panel),color-mix(in oklab, var(--panel) 80%, transparent));
+      border-bottom:1px solid var(--border);backdrop-filter:blur(6px)
+    }
+    .top{
+      display:flex;align-items:center;gap:16px;justify-content:space-between;
+      max-width:980px;margin:0 auto;
+    }
+    .logo{height:64px;width:auto;display:block;filter:drop-shadow(0 2px 6px #0000)}
+
+    nav{
+      max-width:980px;margin:10px auto 0;
+      display:flex;gap:10px;flex-wrap:wrap;justify-content:center
+    }
+    nav a{
+      padding:6px 12px;border:1px solid var(--border);
+      border-radius:999px;background:color-mix(in oklab, var(--panel) 85%, #0000)
+    }
+
+    main{
+      max-width:980px;margin:0 auto;padding:24px 18px;
+      display:flex;flex-direction:column;gap:26px
+    }
+    section{
+      background:
+        radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--accent) 15%, #0000), transparent 60%),
+        var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:24px 20px;
+      box-shadow:0 10px 30px var(--shadow)
+    }
+
+    h1{margin:0 0 6px 0;font-weight:800;letter-spacing:.2px;font-size:clamp(30px,4.6vw,44px)}
+    h2{margin:0 0 12px 0;font-weight:700;color:var(--accent);font-size:clamp(22px,3.4vw,30px)}
+    h3{margin:18px 0 8px 0;font-size:clamp(18px,2.6vw,20px);color:color-mix(in oklab, var(--accent) 75%, var(--text))}
+    h4{margin:10px 0 8px 0;font-size:clamp(16px,2.2vw,18px);color:color-mix(in oklab, var(--accent) 55%, var(--text))}
+    p,li{line-height:1.7}
+    .kicker{color:var(--muted);margin:6px 0 14px}
+    .grid{display:grid;gap:12px}
+    .cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px}
+    .small{font-size:.9rem;color:var(--muted)}
+
+    /* =======================
+       Botón de tema
+       ======================= */
+    .theme-toggle{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:52px;height:52px;border-radius:999px;border:1px solid var(--border);
+      background:color-mix(in oklab, var(--panel) 92%, #0000);
+      cursor:pointer;transition:transform .08s ease
+    }
+    .theme-toggle:hover{transform:scale(1.08)}
+    .theme-toggle svg{width:28px;height:28px;display:block}
+    .icon-sun{display:none}
+    [data-theme="light"] .icon-sun{display:block}
+    [data-theme="light"] .icon-moon{display:none}
+    [data-theme="dark"]  .icon-moon{display:block}
+    /* colores pedidos para los íconos */
+    .theme-toggle .icon-moon{ color: var(--link); }   /* mismo tono que las pills del nav */
+    .theme-toggle .icon-sun  { color: #173960; }      /* azul oscuro de fondo */
+
+    /* =======================
+       Nosotros (1 por fila + foto derecha)
+       ======================= */
+    .people{display:grid;gap:14px}
+    .person{
+      display:grid;
+      grid-template-columns: 1fr clamp(260px, 28vw, 360px);
+      align-items:center;gap:16px;
+      background:var(--card);border:1px solid var(--border);
+      border-radius:12px;padding:16px;
+    }
+    .person-text{font-size:1rem}
+    .person strong{font-weight:700}
+    .person em{font-style:italic}
+    .person-photo{
+      justify-self:end;width:100%;max-width:360px;
+      aspect-ratio:1024/604;height:auto;object-fit:contain;
+      border-radius:12px;border:1px solid var(--border);background:var(--panel);
+      box-shadow:0 6px 18px var(--shadow);
+    }
+    @media (max-width:700px){
+      .person{grid-template-columns:1fr}
+      .person-photo{max-width:300px}
+    }
+
+    /* =======================
+       Tabla de procesos (ajustada al contenido)
+       ======================= */
+    .data-table-wrap{
+      margin-top:14px;overflow-x:auto;display:flex;justify-content:center;
+    }
+    .data-table{
+      display:inline-table;width:auto;max-width:100%;table-layout:auto;
+      border-collapse:separate;border-spacing:0;background:var(--card);
+      border:1px solid var(--border);border-radius:14px;overflow:hidden;
+      box-shadow:0 8px 28px var(--shadow);font-size:.9rem;line-height:1.55;
+    }
+    .data-table thead th{
+      background:linear-gradient(180deg, color-mix(in oklab, var(--tbl-head) 80%, #0000), var(--tbl-head));
+      color:var(--text);text-align:left;font-weight:800;letter-spacing:.2px;
+      padding:10px 14px;border-bottom:1px solid var(--border);
+    }
+    .data-table thead th:nth-child(2),
+    .data-table tbody td:nth-child(2){ text-align:right }
+    .data-table tbody td{
+      padding:10px 14px;border-bottom:1px solid var(--border);
+      vertical-align:top;background:var(--tbl-row);
+    }
+    .data-table tbody tr:nth-child(even) td{
+      background:color-mix(in oklab, var(--tbl-row) 85%, #0000);
+    }
+    .data-table tbody tr:hover td{
+      background:color-mix(in oklab, var(--accent) 12%, var(--tbl-row));
+    }
+    .data-table tbody tr:last-child td{border-bottom:none}
+    .data-table tbody td:first-child{font-weight:600}
+    .data-table caption{
+      text-align:left;padding:8px 4px 10px 2px;color:var(--muted);font-size:.88rem;
+    }
+    @media (max-width:720px){
+      .data-table{font-size:.88rem}
+      .data-table thead th,.data-table tbody td{padding:9px 12px}
+    }
+
+    /* =======================
+       Eventos y Capacitaciones
+       ======================= */
+    #eventos .event-block{ margin:18px 0 28px }
+    /* Marco cuadrado 796×796 (Figma), centrado, sin recorte */
+    #eventos .event-media{
+      width: min(var(--event-size), 96%);       /* respeta 796px y se adapta en móvil */
+      aspect-ratio: 1 / 1;          /* siempre cuadrada */
+      margin: 8px auto 12px;        /* centrado */
+      display:flex;align-items:center;justify-content:center;
+      border-radius:12px;border:1px solid var(--border);
+      background:var(--panel);box-shadow:0 6px 18px var(--shadow);
+      overflow:hidden;
+    }
+    #eventos .event-media img{
+      max-width:100%;max-height:100%;
+      width:auto;height:auto;object-fit:contain; /* NO portada */
+      border-radius:inherit;
+    }
+    #eventos .event-points{
+      font-size:.9rem;line-height:1.65;padding-left:18px;
+    }
+    #eventos .event-points li{ margin: 6px 0 }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="top" aria-label="Encabezado con logo y controles">
+      <!-- Logo (placeholder vector para no cargar imagen externa) -->
+      <svg class="logo" role="img" aria-label="Logo ZENI" viewBox="0 0 529 242" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1" height="1" fill="transparent"/>
+      </svg>
+
+      <!-- Botón tema: Luna (dark) / Sol (light) -->
+      <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Cambiar entre modo claro y oscuro" type="button">
+        <!-- Sol -->
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 12.79A9 9 0 0 1 11.21 3a7 7 0 1 0 9.79 9.79Z"/>
+        </svg>
+        <!-- Luna -->
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 3v1.5m0 15V21m9-9h-1.5M4.5 12H3m15.364-6.364-1.06 1.06M6.696 17.303l-1.06 1.06m12.728 0-1.06-1.06M6.696 6.697 5.636 5.636M12 8.25a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5Z"/>
+        </svg>
+      </button>
+    </div>
+
+    <nav aria-label="Secciones">
+      <a href="#presentacion">Presentación</a>
+      <a href="#nosotros">Nosotros</a>
+      <a href="#objetivo">Objetivo</a>
+      <a href="#logros">Logros</a>
+      <a href="#eventos">Eventos y Capacitaciones</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- =======================
+         PRESENTACIÓN
+         ======================= -->
+    <section id="presentacion">
+      <h1>Área de Control y Gestión – ZENI</h1>
+      <p class="kicker">Qué hicimos, qué hacemos y qué haremos para acelerar decisiones y reducir tareas manuales.</p>
+      <p>Rol del área: radar y brújula de la operación. Damos visibilidad, estandarizamos procesos y
+         habilitamos decisiones con datos confiables y a tiempo.</p>
+    </section>
+
+    <!-- =======================
+         NOSOTROS
+         ======================= -->
+    <section id="nosotros">
+      <h2>Nosotros</h2>
+      <p>Somos un equipo joven con perfiles complementarios. Combinamos formación académica y experiencia
+         práctica con una fuerte vocación por innovar y simplificar el trabajo de toda la organización.</p>
+
+      <div class="people">
+        <div class="person">
+          <div class="person-text">
+            <strong>Nicolás Antognoli</strong><br>
+            <em>Gerente</em><br>
+            Referente del área. Capacitado en Power BI, n8n, Power Automate, SQL, Python y agentes de IA.<br>
+            Asegura el alineamiento estratégico de cada proyecto.
+          </div>
+          <img class="person-photo" src="https://i.postimg.cc/XN94HLcZ/NA.png" alt="Foto de Nicolás Antognoli">
+        </div>
+
+        <div class="person">
+          <div class="person-text">
+            <strong>Sofía Mendiberry</strong><br>
+            <em>Ing. Industrial</em><br>
+            Enfocada en visualización de datos y gestión de proyectos. Formación en Power BI, Power Automate, IA aplicada y PM.
+          </div>
+          <img class="person-photo" src="https://i.postimg.cc/0yXsMBx4/SM.png" alt="Foto de Sofía Mendiberry">
+        </div>
+
+        <div class="person">
+          <div class="person-text">
+            <strong>César Rapalini</strong><br>
+            <em>Tec. en Sistemas</em><br>
+            Especialista en RPA, NodeJS y GitHub. Garantiza automatizaciones sólidas y escalables.
+          </div>
+          <img class="person-photo" src="https://i.postimg.cc/GtxbNXnP/CR.png" alt="Foto de César Rapalini">
+        </div>
+
+        <div class="person">
+          <div class="person-text">
+            <strong>Matías Teti</strong><br>
+            <em>Lic. en Administración</em><br>
+            Experiencia en n8n, Python+IA y Power Automate. Aporta eficiencia en la integración de procesos.
+          </div>
+          <img class="person-photo" src="https://i.postimg.cc/zfQvS2qV/MT.png" alt="Foto de Matías Teti">
+        </div>
+
+        <div class="person">
+          <div class="person-text">
+            <strong>Simón Patricio Vincent</strong><br>
+            <em>Lic. en Comercialización</em><br>
+            Conocimientos en Power BI y Power Automate; conecta datos con la estrategia comercial y visión de mercado.
+          </div>
+          <img class="person-photo" src="https://i.postimg.cc/C1qSVH3Q/SV.png" alt="Foto de Simón Patricio Vincent">
+        </div>
+
+        <div class="person">
+          <div class="person-text">
+            <strong>Omar Shamil Zampaca</strong><br>
+            <em>Lic. en Economía</em><br>
+            Enfoque económico-financiero con formación en Power BI y diplomatura en IA.
+          </div>
+          <img class="person-photo" src="https://i.postimg.cc/WzmVdpbm/OZ.png" alt="Foto de Omar Shamil Zampaca">
+        </div>
+      </div>
+
+      <p class="small">Nuestro diferencial: tecnología e innovación para liberar tiempo, reducir errores y potenciar la toma de decisiones.</p>
+    </section>
+
+    <!-- =======================
+         OBJETIVO
+         ======================= -->
+    <section id="objetivo">
+      <h2>Objetivo</h2>
+      <p>Crear oportunidades a través de la tecnología y los datos. Nos inspira hacernos nuevas preguntas,
+         buscar soluciones diferentes y anticiparnos a lo que viene. Automatizamos procesos, diseñamos tableros
+         inteligentes e incorporamos IA para que la información fluya en tiempo real y potencie la toma de decisiones.
+         Así, liberamos a las personas de tareas repetitivas para que se enfoquen en lo esencial: pensar, decidir y
+         hacer crecer la empresa. La tecnología transforma; el capital humano marca la diferencia.</p>
+    </section>
+
+    <!-- =======================
+         LOGROS
+         ======================= -->
+    <section id="logros">
+      <h2>Logros</h2>
+
+      <h3>Implementaciones</h3>
+      <ul>
+        <li>Automatizaciones (RPA / n8n / Power Automate) para reducir tareas manuales y errores.</li>
+        <li>Tableros en Power BI para decidir más rápido con datos confiables y visibles por rol.</li>
+        <li>Integración y estandarización de información (SAP/archivos/DB) con controles de calidad.</li>
+        <li>Posición diaria y proyección de cash flow para mejorar el manejo de dinero.</li>
+        <li>Trazabilidad y alertas para seguimiento de procesos críticos.</li>
+      </ul>
+
+      <h3>Procesos implementados</h3>
+      <div class="data-table-wrap">
+        <table class="data-table" id="tabla-procesos-implementados" aria-describedby="desc-proc-impl">
+          <caption id="desc-proc-impl" class="small">
+            Resumen por área: recuento de procesos y tiempo promedio reducido (horas/minutos por período).
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Area</th>
+              <th scope="col">Procesos</th>
+              <th scope="col">Tiempo promedio reducido</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Aplicaciones</td><td>17</td><td>19 hs semanales</td></tr>
+            <tr><td>Back Office</td><td>5</td><td>2.5 hs diarias</td></tr>
+            <tr><td>Back Office MATBA</td><td>4</td><td>6 min diarias</td></tr>
+            <tr><td>Boletos</td><td>4</td><td>6.5 hs diarias</td></tr>
+            <tr><td>Cobranzas</td><td>13</td><td>3.5 hs diarias</td></tr>
+            <tr><td>Comercial</td><td>5</td><td>1.3 hs diarias</td></tr>
+            <tr><td>Comercio Exterior</td><td>2</td><td>3.5 hs diarias</td></tr>
+            <tr><td>Compras</td><td>4</td><td>30 min diarias</td></tr>
+            <tr><td>Contaduria</td><td>6</td><td>1.4 hs diarias</td></tr>
+            <tr><td>Control de Gestión</td><td>3</td><td>40 min semanales</td></tr>
+            <tr><td>Dirección</td><td>3</td><td>3 min semanales</td></tr>
+            <tr><td>Finanzas</td><td>1</td><td>9 min diarias</td></tr>
+            <tr><td>Ganaderia</td><td>1</td><td>9 min diarias</td></tr>
+            <tr><td>Impuestos</td><td>4</td><td>1.4 hs diarias</td></tr>
+            <tr><td>Insumos</td><td>1</td><td>29 min diarias</td></tr>
+            <tr><td>Interfab</td><td>16</td><td>5.5 hs diarias</td></tr>
+            <tr><td>Laboratorios</td><td>1</td><td>9 min diarias</td></tr>
+            <tr><td>Mercaderias</td><td>3</td><td>19 min diarias</td></tr>
+            <tr><td>Pago a proveedores</td><td>4</td><td>14 min diarias</td></tr>
+            <tr><td>Sistemas</td><td>1</td><td></td></tr>
+            <tr><td>Subproductos</td><td>3</td><td>8 min diarias</td></tr>
+            <tr><td>Tesoreria</td><td>4</td><td>48 min diarias</td></tr>
+            <tr><td>Otros</td><td>2</td><td>19 min diarias</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- (RESTAURADO) Futuros proyectos -->
+      <h3>Futuros proyectos</h3>
+      <ul>
+        <li><strong>Control interno:</strong> relevamiento y mejoras en procesos clave, con checklist y monitoreo.</li>
+        <li><strong>Hiperautomatización de facturación:</strong> reducir tiempos y errores de punta a punta.</li>
+        <li><strong>Boletos “voz a carga”:</strong> flujo que permita dictar por audio y registrar automáticamente.</li>
+        <li><strong>Agente de IA para noticias:</strong> trae y narra novedades específicas para estar al día.</li>
+        <li><strong>Analítica y predicción:</strong> avanzar a modelos de ML para detectar patrones y anticipar.</li>
+      </ul>
+    </section>
+
+    <!-- =======================
+         EVENTOS Y CAPACITACIONES
+         ======================= -->
+    <section id="eventos">
+      <h2>Eventos y Capacitaciones</h2>
+      <h3>Eventos</h3>
+
+      <!-- POSSUMUS -->
+      <div class="event-block">
+        <h4>Desayuno POSSUMUS – Buenos Aires (Sagardi Group): Copilot para Microsoft 365</h4>
+        <figure class="event-media">
+          <img src="https://i.postimg.cc/8CPQPLf4/Possumus-2024.png" alt="Desayuno POSSUMUS en Sagardi Group">
+        </figure>
+        <ol class="event-points">
+          <li><strong>Velocidad y eficiencia:</strong> nos ayuda a acelerar el time-to-market y a aumentar la productividad en tareas diarias.</li>
+          <li><strong>Colaboración y satisfacción:</strong> mejora la co-creación entre equipos y la experiencia de los usuarios.</li>
+        </ol>
+      </div>
+
+      <!-- Digital Finance Forum -->
+      <div class="event-block">
+        <h4>Digital Finance Forum (IAEF)</h4>
+        <figure class="event-media">
+          <img src="https://i.postimg.cc/QdqZ3fCV/IAEF-2025.png" alt="Digital Finance Forum del IAEF">
+        </figure>
+        <ol class="event-points">
+          <li><strong>Transformación y señales de futuro:</strong> marco 6D, señales débiles y escenarios para decidir hoy lo que impacta mañana.</li>
+          <li><strong>Cómo organizarnos:</strong> ser ambidiestras (explotación vs. exploración), liderar con propósito y foco en ejecución.</li>
+          <li><strong>Talento y empleabilidad:</strong> reskilling con práctica real; tensión productividad vs. miedo al cambio.</li>
+          <li><strong>Ciberseguridad primero:</strong> gobernanza, riesgos, verificación de conexiones, alcances de la IA y planes de contingencia probados.</li>
+          <li><strong>IA con criterio:</strong> chatbots colaborativos, calidad de datos y mitigación de alucinaciones.</li>
+          <li><strong>Energía y escalabilidad:</strong> demanda por data centers; explorar mini reactores nucleares para energía limpia y estable.</li>
+          <li><strong>Argentina 2030:</strong> exportación de servicios y economía del conocimiento con organización, capacitación y empleabilidad real.</li>
+          <li><strong>Horizonte tecnológico:</strong> computación cuántica y nuevas interfaces (VR/AR); crece el valor de la interacción humana, análisis y liderazgo.</li>
+        </ol>
+      </div>
+
+      <!-- BCR Ag-Tech -->
+      <div class="event-block">
+        <h4>BCR Ag-Tech Forum 2025 – Rosario</h4>
+        <figure class="event-media">
+          <img src="https://i.postimg.cc/Jz8Cvf19/BCR-2025.png" alt="BCR Ag-Tech Forum 2025 en Rosario">
+        </figure>
+        <ol class="event-points">
+          <li>Enfocamos la innovación donde se cruzan <strong>necesidades, capacidades y tendencias</strong>.</li>
+          <li><strong>LATAM</strong> ofrece gran oportunidad en AgTech, pero la <strong>baja adopción</strong>, la <strong>heterogeneidad</strong> y la <strong>falta de financiación</strong> frenan la escala.</li>
+          <li><strong>Innovación abierta:</strong> trabajar con startups y socios dentro y fuera de la empresa.</li>
+          <li>Pasar de <strong>exportar commodities</strong> a <strong>exportar innovación</strong>.</li>
+          <li>La base son <strong>datos y digitalización</strong>: calidad, lenguaje común y trazabilidad para habilitar procesos y negocios.</li>
+          <li>La <strong>IA</strong> es un <strong>acelerador</strong> de la adopción digital y se potencia con la digitalización (productividad, precisión, logística y mercado).</li>
+          <li>El gran reto es la <strong>adopción</strong>: necesitamos un “<strong>traductor agro-tech</strong>” entre productor y proveedor de servicios/tecnologías.</li>
+          <li>Referencias: <strong>Sima</strong> (monitoreo/digitalización), <strong>DeepAgro</strong> (IA en imágenes), <strong>Wiagro</strong> (activos digitales y alertas), <strong>Antubay</strong> (conectividad).</li>
+          <li>Qué buscan VCs y empresas en AgTech: <strong>solución integral</strong> (problema→solución→aplicación) y <strong>medible</strong>, ajustada al cliente.</li>
+          <li>Próximo paso: <strong>laboratorios vivos</strong> con productores y <strong>capital con propósito</strong> para probar, medir y escalar lo que funciona.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const root = document.documentElement;
+      const btn  = document.getElementById('themeToggle');
+
+      // Tema guardado o preferencia del SO
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initial = saved || (prefersDark ? 'dark' : 'light');
+      root.setAttribute('data-theme', initial);
+
+      // Toggle y persistencia
+      function toggleTheme(){
+        const current = root.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        btn.setAttribute('aria-pressed', next === 'dark' ? 'false' : 'true');
+      }
+      btn.addEventListener('click', toggleTheme);
+      btn.setAttribute('aria-pressed', initial === 'dark' ? 'false' : 'true');
+
+      // Cambios del SO si no hay tema guardado
+      if(window.matchMedia){
+        window.matchMedia('(prefer-color-scheme: dark)');
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e=>{
+          if(!localStorage.getItem('theme')){
+            root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+            btn.setAttribute('aria-pressed', e.matches ? 'false' : 'true');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
