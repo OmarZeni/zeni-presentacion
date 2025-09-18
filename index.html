@@ -17,6 +17,9 @@
       /* Colores para tablas */
       --tbl-head: color-mix(in oklab, var(--accent) 25%, var(--panel));
       --tbl-row:  color-mix(in oklab, var(--panel) 92%, #0000);
+
+      /* Tamaño de imágenes en Eventos (50% de 796px) */
+      --event-size: 398px;
     }
     [data-theme="light"]{
       --bg:#f7fafc;        --panel:#ffffff;   --text:#0f172a;  --muted:#475569;
@@ -25,7 +28,6 @@
 
       --tbl-head: color-mix(in oklab, var(--accent) 10%, #fff);
       --tbl-row:  #fff;
-      --event-size: 398px;
     }
 
     /* =======================
@@ -58,6 +60,10 @@
       max-width:980px;margin:0 auto;
     }
     .logo{height:64px;width:auto;display:block;filter:drop-shadow(0 2px 6px #0000)}
+    /* Alternar logo según tema */
+    .logo-light{ display:none; }
+    [data-theme="light"] .logo-light{ display:block; }
+    [data-theme="light"] .logo-dark{  display:none;  }
 
     nav{
       max-width:980px;margin:10px auto 0;
@@ -180,11 +186,11 @@
        Eventos y Capacitaciones
        ======================= */
     #eventos .event-block{ margin:18px 0 28px }
-    /* Marco cuadrado 796×796 (Figma), centrado, sin recorte */
+    /* Marco cuadrado, centrado, sin recorte */
     #eventos .event-media{
-      width: min(var(--event-size), 96%);       /* respeta 796px y se adapta en móvil */
-      aspect-ratio: 1 / 1;          /* siempre cuadrada */
-      margin: 8px auto 12px;        /* centrado */
+      width: min(var(--event-size), 96%);
+      aspect-ratio: 1 / 1;
+      margin: 8px auto 12px;
       display:flex;align-items:center;justify-content:center;
       border-radius:12px;border:1px solid var(--border);
       background:var(--panel);box-shadow:0 6px 18px var(--shadow);
@@ -192,7 +198,7 @@
     }
     #eventos .event-media img{
       max-width:100%;max-height:100%;
-      width:auto;height:auto;object-fit:contain; /* NO portada */
+      width:auto;height:auto;object-fit:contain;
       border-radius:inherit;
     }
     #eventos .event-points{
@@ -205,10 +211,30 @@
 <body>
   <header>
     <div class="top" aria-label="Encabezado con logo y controles">
-      <!-- Logo (placeholder vector para no cargar imagen externa) -->
-      <svg class="logo" role="img" aria-label="Logo ZENI" viewBox="0 0 529 242" xmlns="http://www.w3.org/2000/svg">
-        <rect width="1" height="1" fill="transparent"/>
-      </svg>
+      <!-- Logos: oscuro / claro -->
+      <a href="#presentacion" aria-label="Inicio">
+        <!-- Se muestra en tema oscuro -->
+        <img
+          src="./logo-ZENI-oscuro.svg"
+          alt="ZENI"
+          class="logo logo-dark"
+          height="64"
+          width="auto"
+          decoding="async"
+          loading="eager"
+        />
+        <!-- Se muestra en tema claro -->
+        <img
+          src="./logo-ZENI-claro.svg"
+          alt=""
+          class="logo logo-light"
+          height="64"
+          width="auto"
+          decoding="async"
+          loading="eager"
+          aria-hidden="true"
+        />
+      </a>
 
       <!-- Botón tema: Luna (dark) / Sol (light) -->
       <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Cambiar entre modo claro y oscuro" type="button">
